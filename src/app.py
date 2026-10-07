@@ -80,6 +80,11 @@ def senha_json(row):
 def erro(codigo_erro, http_status):
     return jsonify({"erro": codigo_erro}), http_status
 
+def buscar_senha_hoje(codigo):
+    dia = agora().date().isoformat()
+    return conn.execute(
+        "SELECT * FROM senhas WHERE dia = ? AND codigo = ?", (dia, codigo)
+    ).fetchone()
 
 @app.post("/senhas")
 def emitir_senha():
@@ -106,6 +111,70 @@ def emitir_senha():
 
     return jsonify(senha_json(row)), 201
 
+@app.get("/senhas/proxima")
+def proxima_senha():
+    with LOCK, conn:
+        momento = agora()
+        dia = momento.date().isoformat()
+
+        pref = conn.execute(
+            "SELECT * FROM senhas WHERE dia = ? AND status = 'aguardando' "
+            "AND tipo = 'preferencial' ORDER BY id LIMIT 1", (dia,)
+        ).fetchone()
+        norm = conn.execute(
+            "SELECT * FROM senhas WHERE dia = ? AND status = 'aguardando' "
+            "AND tipo = 'normal' ORDER BY id LIMIT 1", (dia,)
+        ).fetchone()
+
+        if pref is None and norm is None:
+            return erro("fila_vazia", 404)
+
+        seguidas = conn.execute(
+            "SELECT valor FROM estado WHERE chave = 'prefs_seguidas'"
+        ).fetchone()[0]
+
+        if pref is not None and (seguidas < RAZAO_PREFERENCIAL or norm is None):
+            escolhida = pref
+            seguidas = min(seguidas + 1, RAZAO_PREFERENCIAL)
+        else:
+            escolhida = norm
+            if seguidas >= RAZAO_PREFERENCIAL:
+                seguidas = 0
+
+        ordem = conn.execute(
+            "SELECT COALESCE(MAX(ordem_painel), 0) + 1 FROM senhas"
+        ).fetchone()[0]
+        conn.execute(
+            "UPDATE senhas SET status = 'chamada', chamada_em = ?, ordem_painel = ? "
+            "WHERE id = ?",
+            (momento.isoformat(), ordem, escolhida["id"]),
+        )
+        conn.execute(
+            "UPDATE estado SET valor = ? WHERE chave = 'prefs_seguidas'", (seguidas,)
+        )
+        row = conn.execute(
+            "SELECT * FROM senhas WHERE id = ?", (escolhida["id"],)
+        ).fetchone()
+
+    return jsonify(senha_json(row)), 200
+
+@app.post("/senhas/<codigo>/concluir")
+def concluir_senha(codigo):
+    with LOCK, conn:
+        senha = buscar_senha_hoje(codigo)
+        if senha is None:
+            return erro("senha_nao_encontrada", 404)
+        if senha["status"] != "chamada":
+            return erro("senha_nao_chamada", 409)
+
+        conn.execute(
+            "UPDATE senhas SET status = 'concluida' WHERE id = ?", (senha["id"],)
+        )
+        row = conn.execute(
+            "SELECT * FROM senhas WHERE id = ?", (senha["id"],)
+        ).fetchone()
+
+    return jsonify(senha_json(row)), 200
 
 if __name__ == "__main__":
     init_db()
