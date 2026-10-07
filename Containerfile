@@ -28,4 +28,17 @@
 # ---- Java/Spring ----
 # (multi-stage: maven build + jre run — veja o track 02 para inspiracao)
 
-FROM scratch
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ ./src/
+
+RUN mkdir -p /data
+
+EXPOSE 8080
+
+CMD ["python", "-u", "src/app.py"]
