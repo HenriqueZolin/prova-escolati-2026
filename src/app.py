@@ -62,7 +62,7 @@ def init_db():
 
 
 def agora():
-    return datetime.now(FUSO).replace(microsecond=0)
+    return datetime.now(FUSO)
 
 
 def senha_json(row):
@@ -175,6 +175,56 @@ def concluir_senha(codigo):
         ).fetchone()
 
     return jsonify(senha_json(row)), 200
+
+@app.post("/senhas/<codigo>/rechamar")
+def rechamar_senha(codigo):
+    with LOCK, conn:
+        senha = buscar_senha_hoje(codigo)
+        if senha is None:
+            return erro("senha_nao_encontrada", 404)
+        if senha["status"] != "chamada":
+            return erro("senha_nao_chamada", 409)
+
+        ordem = conn.execute(
+            "SELECT COALESCE(MAX(ordem_painel), 0) + 1 FROM senhas"
+        ).fetchone()[0]
+        conn.execute(
+            "UPDATE senhas SET chamada_em = ?, ordem_painel = ? WHERE id = ?",
+            (agora().isoformat(), ordem, senha["id"]),
+        )
+        row = conn.execute(
+            "SELECT * FROM senhas WHERE id = ?", (senha["id"],)
+        ).fetchone()
+
+    return jsonify(senha_json(row)), 200
+
+@app.post("/senhas/<codigo>/cancelar")
+def cancelar_senha(codigo):
+    with LOCK, conn:
+        senha = buscar_senha_hoje(codigo)
+        if senha is None:
+            return erro("senha_nao_encontrada", 404)
+        if senha["status"] != "aguardando":
+            return erro("senha_nao_aguardando", 409)
+
+        conn.execute(
+            "UPDATE senhas SET status = 'cancelada' WHERE id = ?", (senha["id"],)
+        )
+        row = conn.execute(
+            "SELECT * FROM senhas WHERE id = ?", (senha["id"],)
+        ).fetchone()
+
+    return jsonify(senha_json(row)), 200
+
+@app.get("/painel")
+def painel():
+    with LOCK:
+        rows = conn.execute(
+            "SELECT * FROM senhas WHERE ordem_painel IS NOT NULL "
+            "ORDER BY ordem_painel DESC LIMIT 5"
+        ).fetchall()
+
+    return jsonify({"chamadas": [senha_json(r) for r in rows]}), 200
 
 if __name__ == "__main__":
     init_db()
