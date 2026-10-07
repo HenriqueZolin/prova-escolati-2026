@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "repo": "prova-escolati-2026",
+  "repo_url": "https://github.com/HenriqueZolin/prova-escolati-2026",
+  "exam_dir": "exams/2026/track-03-crud",
+  "track": "track-03-crud",
+  "issue": 1,
+  "issue_url": "https://github.com/HenriqueZolin/prova-escolati-2026/issues/1",
+  "gerado_em": "2026-10-07T23:47:33+00:00",
+  "fechada_em": "2026-10-07T23:47:11Z",
+  "aplicada": true,
+  "motivo": null,
+  "aluno": {
+    "login": "HenriqueZolin",
+    "ra": "231675792",
+    "nome": "Henrique Zolin Medeiros"
+  },
+  "variante": {
+    "slug": "prova-escolati-2026",
+    "EXAM_DIR": "exams/2026/track-03-crud",
+    "PREFIXO": "C",
+    "RAZAO_PREFERENCIAL": 2,
+    "PORTA_API": 9204
+  },
+  "janela": {
+    "minutos": 120,
+    "t0": "2026-10-07T22:11:15Z",
+    "ultimo_push": "2026-10-07T20:37:40-03:00"
+  },
+  "commits": {
+    "total": 10,
+    "autores": [
+      "HenriqueZolin",
+      "henrique.medeiros"
+    ],
+    "primeiro": "2026-10-07T19:05:24-03:00",
+    "ultimo": "2026-10-07T20:37:40-03:00",
+    "fora_da_janela": 0
+  },
+  "nota_parcial": {
+    "valor": null,
+    "criterios": {}
+  },
+  "auto_correcao": {
+    "executada": true,
+    "nota_ultima": 40
+  },
+  "fontes": {
+    "presente": true,
+    "declarou_vazio": false,
+    "links": 0
+  }
+}
