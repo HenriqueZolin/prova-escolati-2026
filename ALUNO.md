@@ -2,9 +2,9 @@
 
 # ALUNO
 
-Nome: HenriqueZolin
+Nome: Henrique Zolin Medeiros
 
-RA: >>> PREENCHER <<<
+RA: 23167579-2
 
 Conta GitHub: @HenriqueZolin
 
