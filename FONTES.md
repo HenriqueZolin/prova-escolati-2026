@@ -16,7 +16,7 @@
 
 | # | URL | O que foi consultado | Onde aparece no entregável |
 | --- | --- | --- | --- |
-| — | | | |
+| — | https://github.com/HenriqueZolin/crud-flask-docker-template/tree/main | Template baseado no exemplo do que deveria ser entregue | Usado para auxilio do Agente |
 
 *(Ex.: `https://docs.oracle.com/...` → sintaxe de `Optional` → `plan.md` na
 seção de decisões. Esse link é ILUSTRATIVO — fora de linha numerada não
@@ -38,7 +38,7 @@ conta. Se nenhum site foi consultado, escreva: **"Nenhum site consultado."**)*
 
 | # | Link público da conversa | Onde o conteúdo foi usado |
 | --- | --- | --- |
-| — | | |
+| — | https://claude.ai/share/1858782b-3041-4ea4-b512-533cfb05d16d | Geraçã odo código e arquivos docker |
 
 *(Se nenhuma IA foi utilizada, escreva: **"Nenhuma IA utilizada."**)*
 
